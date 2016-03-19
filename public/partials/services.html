@@ -1,0 +1,16 @@
+<a href="#/admin/add-edit-service/0" class="btn btn-success pull-right">Add New Service</a>
+<h1>Service List</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="service in allServices">
+            <td>{{service.name}}</td>
+            <td>{{service.description}}</td>
+        </tr>
+    </tbody>
+</table>
