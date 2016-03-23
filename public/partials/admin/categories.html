@@ -1,0 +1,20 @@
+<a href="/admin/add-edit-category/0" class="btn btn-success pull-right">Add New Category</a>
+<h1>Category List</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="category in allCategories">
+        <td>{{category.name}}</td>
+        <td>{{category.description}}</td>
+        <td><a ng-href="/admin/add-edit-category/{{category._id}}">Edit</a></td>
+        <td><a ng-href="#" ng-click="deleteCategory(category._id)">Delete</a></td>
+    </tr>
+    </tbody>
+</table>

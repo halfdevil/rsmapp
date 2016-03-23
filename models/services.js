@@ -7,9 +7,10 @@ var Schema = mongoose.Schema;
 
 var serviceSchema = new Schema({
     name : {type : String},
-    description : {type : String},
-    imageUrl : {type : String}
+    type : {type : String},
+    items : [{particular : String, rate : Number}],
+    category : {type : Schema.Types.ObjectId, ref : 'category'}
 });
 
-var service = mongoose.model('serviceSchema', serviceSchema);
+var service = mongoose.model('Service', serviceSchema);
 module.exports = service;

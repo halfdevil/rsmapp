@@ -5,8 +5,9 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var router = express.Router();
-var user = require('./models/users.js');
-var service = require('./models/services.js');
+var user = require('../models/users.js');
+var category = require('../models/categories.js');
+var service = require('../models/services.js');
 var bcrypt = require('bcrypt-nodejs');
 
 function sessionCheck(request, response, next) {
@@ -71,36 +72,49 @@ router.post('/logout', function(request, response) {
     });
 });
 
-router.get('/services', function(request, response) {
-    return service.find(function(err, services) {
+router.get('/categories', function(request, response) {
+    return category.find(function(err, categories) {
         if (!err) {
-            return response.send(services);
+            return response.send(categories);
         } else {
             return response.status(500).send(err);
         }
-    })
+    });
 });
 
-router.post('/services/add', function(request, response) {
-    var newService = new service({
-        name : request.body.name,
-        description : request.body.description,
-        imageUrl : ''
-    });
+router.get('/categories/:id', function(request, response) {
+    var id = request.params.id;
 
-    newService.save(function(err) {
+    category.findOne({
+        _id : id
+    }, function(err, category) {
+        if (err) {
+            return response.send('Unable to find service');
+        } else {
+            return response.send(category);
+        }
+    });
+});
+
+router.post('/categories/add', function(request, response) {
+    var newCategory = new category();
+
+    newCategory.name = request.body.name;
+    newCategory.description = request.body.description;
+
+    newCategory.save(function(err) {
         if (!err) {
-            response.send('Service added successfully');
+            response.send("Category added successfully");
         } else {
             response.send(err);
         }
     });
 });
 
-router.post('/services/update/:id', function(request, response) {
-    var id =  request.params.id;
+router.post('/categories/update/:id', function(request, response) {
+    var id = request.params.id;
 
-    service.update({
+    category.update({
         _id : id
     }, {
         $set : {
@@ -109,19 +123,43 @@ router.post('/services/update/:id', function(request, response) {
         }
     }).exec();
 
-    response.send('Service has been updated');
+    response.send('Category has been update');
 });
 
-router.get('/services/delete/:id', function(request, response) {
+router.get('/categories/delete/:id', function(request, response) {
     var id = request.params.id;
 
-    service.remove({
-        _id : id,
+    category.remove({
+        _id : id
     }, function(err) {
-        return response.send('Unable to delete service');
+        if (err) {
+            return response.send("Unable to delete category");
+        } else {
+            return response.send("Category deleted successfully");
+        }
     });
+});
 
-    return response.send('Service has been deleted');
+router.get('/categories/services/:category', function(request, response) {
+    var category = request.params.category;
+
+    return service.find({category : category}, function(err, services) {
+        if (!err) {
+            return response.send(services);
+        } else {
+            return response.status(500).send(err);
+        }
+    });
+});
+
+router.get('/services', function(request, response) {
+    return service.find(function(err, services) {
+        if (!err) {
+            return response.send(services);
+        } else {
+            return response.status(500).send(err);
+        }
+    })
 });
 
 router.get('/services/:id', function(request, response) {
@@ -137,3 +175,82 @@ router.get('/services/:id', function(request, response) {
         }
     });
 });
+
+router.post('/services/add/:category', function(request, response) {
+    var catId = request.params.category;
+    var items = request.body.items;
+
+    category.findOne({
+        _id : catId
+    }, function(err, cat) {
+        if (!err) {
+            var newService = new service();
+
+            newService.name = request.body.name;
+            newService.type = request.body.type;
+            newService.category = catId;
+
+            items.forEach(function (item) {
+                newService.items.push({
+                    particular: item.particular,
+                    rate: item.rate
+                });
+            });
+
+            newService.save(function (err) {
+                if (!err) {
+                    response.send('Service added successfully');
+                } else {
+                    response.send(err);
+                }
+            });
+        } else {
+            return response.send('Invalid category passed');
+        }
+    });
+});
+
+router.post('/services/update/:id', function(request, response) {
+    var id =  request.params.id;
+    var items = request.body.items;
+    var newService = new service();
+
+    newService.name = request.body.name;
+    newService.type = request.body.type;
+
+    items.forEach(function(item) {
+        newService.items.push({
+            particular : item.particular,
+            rate : item.rate
+        });
+    });
+
+    var serviceData = newService.toObject();
+    delete serviceData._id;
+
+    service.update({_id : id}, serviceData, {upsert : true},
+        function(err) {
+            if (err) {
+                response.send('Unable to update service');
+            } else {
+                response.send('Service has been updated');
+            }
+        }
+    );
+});
+
+router.get('/services/delete/:id', function(request, response) {
+    var id = request.params.id;
+
+    service.remove({
+        _id : id,
+    }, function(err) {
+        if (err) {
+            return response.send('Unable to delete service');
+        } else {
+            return response.send('Service has been deleted');
+        }
+    });
+});
+
+module.exports = router;

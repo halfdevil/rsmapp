@@ -5,12 +5,16 @@
         <tr>
             <th>Name</th>
             <th>Description</th>
+            <th>Edit</th>
+            <th>Delete</th>
         </tr>
     </thead>
     <tbody>
         <tr ng-repeat="service in allServices">
             <td>{{service.name}}</td>
             <td>{{service.description}}</td>
+            <td><a ng-href="#/admin/add-edit-service/{{service._id}}">Edit</a></td>
+            <td><a ng-href="#" ng-click="deleteService(service._id)">Delete</a></td>
         </tr>
     </tbody>
 </table>

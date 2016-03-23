@@ -1,0 +1,18 @@
+<h1>{{heading}}</h1>
+<hr/>
+
+<form role="form" id="add-category" ng-submit="saveCategory()">
+    <div class="form-group">
+        <label>Category ID</label>
+        <input class="form-control" type="text" readonly ng-model="categoryContent._id" />
+    </div>
+    <div class="form-group">
+        <label>Category Name</label>
+        <input class="form-control" type="text" ng-model="categoryContent.name" />
+    </div>
+    <div class="form-group">
+        <label>Category Description</label>
+        <textarea rows="15" class="form-control" ng-model="categoryContent.description"></textarea>
+    </div>
+    <input type="submit" class="btn btn-success" value="Save" />
+</form>
